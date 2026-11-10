@@ -1,12 +1,12 @@
 # eval-inflation
 
-Code for **"Metric Scope Violations in Tabular Classification: An Eight-Stage Correction Protocol"** (submitted, IEEE BigData 2026).
+Study notes for **"Metric Scope Violations in Tabular Classification: An Eight-Stage Correction Protocol"** (submitted, IEEE BigData 2026).
 
-The paper documents how standard ML evaluation pipelines on tabular data produce inflated or misleading results when calibration, uncertainty quantification, subgroup fairness, and clustering validity are omitted. It proposes a correction protocol and applies it to the IBM HR attrition benchmark.
+On the synthetic IBM HR benchmark, five-fold AUC was 0.801 while the Brier score was 0.1594, compared with 0.1599 for the reference baseline. AUC measures how well the model ranks cases. The Brier score measures error in the predicted probabilities.
 
-## The problem
+## Repository contents
 
-Most attrition classification papers report AUC, maybe F1, and one model comparison. The metrics aren't wrong — they're just incomplete in ways that matter when the output is used for real decisions. An AUC without a confidence interval is a point estimate with unquantified variance. Brier = 0.1594 against a baseline of 0.1599 is not model confirmation — it's a finding that F1 reporting concealed.
+This checkout contains the study summary, dependencies, and [dataset instructions](data/README.md). Reproducing the reported values requires `hardened_pipeline.py`, `generate_figures.py`, and `hardened_results.json`, which are absent from this checkout.
 
 ## Key results
 
@@ -18,42 +18,19 @@ Most attrition classification papers report AUC, maybe F1, and one model compari
 | DPD (Gender) | 0.015 |
 | EOD (Age) | 0.266 |
 | Proxy MI (StockOptionLevel) | 0.426 |
-| Clustering silhouette | 0.236 — below 0.30 threshold |
+| Clustering silhouette | 0.236 (below the 0.30 threshold) |
 
 ## Pipeline stages
 
 1. Stratified k-fold cross-validation (k=5)
 2. Bootstrap confidence intervals on AUC
-3. Calibration audit — ECE, reliability diagrams
+3. Calibration audit with ECE, reliability diagrams
 4. Brier score with no-skill baseline comparison
 5. SHAP attribution with provenance documentation
-6. Subgroup fairness — Demographic Parity Difference, Equalized Odds Difference
+6. Subgroup fairness with Demographic Parity Difference, Equalized Odds Difference
 7. Proxy variable mutual information audit
 8. Clustering validity with algorithm-metric matching
 
-## Structure
-
-```
-hardened_pipeline.py   # full eight-stage evaluation
-generate_figures.py    # all paper figures
-hardened_results.json  # verified output snapshot
-data/README.md         # dataset instructions
-figures/               # generated plots
-requirements.txt
-```
-
-## Reproduce
-
-```bash
-pip install -r requirements.txt
-# place ibm_hr_attrition.csv in data/ — see data/README.md
-python hardened_pipeline.py
-python generate_figures.py
-```
-
-All numbers in the paper trace to `hardened_results.json`.
-
 ## Dataset
 
-IBM HR Analytics Employee Attrition dataset — 1,470 observations, 35 features, synthetic, no real employee records.
-https://www.kaggle.com/datasets/pavansubhasht/ibm-hr-analytics-attrition-dataset
+The [dataset notes](data/README.md) give the download link and file path for the synthetic IBM HR Analytics Employee Attrition & Performance dataset. It has 1,470 rows and 35 columns.
